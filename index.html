@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AQI MONITOR - Air Pollution Monitoring System</title>
+  
+  <!-- Leaflet CSS for Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  
+  <!-- Chart.js for Historical Trends -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- External Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ==================== SLIDE 1: AQI MONITOR LOGIN ==================== -->
+  <section id="login-slide" class="screen active">
+    <div class="login-bg-overlay"></div>
+
+    <!-- Quotes from reference -->
+    <div class="left-quote-badge">
+      <p>"A better<br>Tomorrow<br>with a Better<br>Earth"</p>
+      <div class="quote-line"></div>
+    </div>
+
+    <div class="dora-login-wrapper">
+      <!-- Central Frosted Glass Card -->
+      <div class="dora-glass-card">
+        <div class="card-brand-header">
+          <div class="weather-sun-cloud-icon">⛅</div>
+          <h1 class="dora-brand-title">AQI <span>MONITOR</span></h1>
+          <p class="dora-tagline">Explore • Track • Care for our Earth</p>
+        </div>
+
+        <form id="loginForm" class="dora-login-form">
+          <div class="input-icon-group">
+            <span class="field-icon">👤</span>
+            <input type="text" id="username" placeholder="Name" required>
+          </div>
+
+          <div class="input-icon-group">
+            <span class="field-icon">📍</span>
+            <input type="text" id="usercity" placeholder="City / Region (e.g. Pune)" required>
+          </div>
+
+          <button type="submit" class="btn-dora-login">
+            Launch Monitor <span class="arrow">→</span>
+          </button>
+
+          
+        </form>
+      </div>
+
+      <!-- Right Weather Chips -->
+      <div class="weather-chips-stack">
+        <div class="w-chip">
+          <div class="w-chip-icon">☀️</div>
+          <div class="w-chip-info">
+            <span class="w-name">Sunny</span>
+            <span class="w-temp">28°C</span>
+          </div>
+        </div>
+        <div class="w-chip">
+          <div class="w-chip-icon">🌧️</div>
+          <div class="w-chip-info">
+            <span class="w-name">Rainy</span>
+            <span class="w-temp">22°C</span>
+          </div>
+        </div>
+        <div class="w-chip">
+          <div class="w-chip-icon">☁️</div>
+          <div class="w-chip-info">
+            <span class="w-name">Cloudy</span>
+            <span class="w-temp">25°C</span>
+          </div>
+        </div>
+        <div class="w-chip">
+          <div class="w-chip-icon">💨</div>
+          <div class="w-chip-info">
+            <span class="w-name">Windy</span>
+            <span class="w-temp">21°C</span>
+          </div>
+        </div>
+        <div class="w-chip">
+          <div class="w-chip-icon">❄️</div>
+          <div class="w-chip-info">
+            <span class="w-name">Snowy</span>
+            <span class="w-temp">0°C</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-quote-badge">
+      <p>"A cleaner Earth<br>for a brighter tomorrow"</p>
+      <div class="quote-line"></div>
+    </div>
+  </section>
+
+  <!-- ==================== SLIDE 2: INDIA RADAR SCAN ==================== -->
+  <section id="radar-slide" class="screen">
+    <h2 id="scanText">
+      SCANNING REGION: <span id="scanCityTarget" style="color:#fff;">PUNE</span>...
+    </h2>
+    <div class="radar-box">
+      <svg class="india-map-neon" viewBox="0 0 400 450" fill="none" stroke="#ef4444" stroke-width="3">
+        <path d="M190 20 L210 35 L225 30 L235 55 L215 80 L230 110 L280 120 L300 100 L320 120 L310 150 L270 155 L250 170 L260 210 L230 240 L210 270 L195 330 L180 390 L165 370 L155 310 L140 270 L120 250 L110 210 L120 180 L80 180 L70 140 L100 100 L140 90 L170 60 Z" stroke-dasharray="8 4" />
+        <circle cx="160" cy="270" r="6" fill="#ef4444" />
+        <circle cx="180" cy="140" r="6" fill="#ef4444" />
+        <circle cx="150" cy="240" r="6" fill="#ef4444" />
+      </svg>
+      <div class="radar-scanner-line"></div>
+      <div class="target-pin" id="targetPin"></div>
+    </div>
+  </section>
+
+  <!-- ==================== SLIDE 3: DASHBOARD ==================== -->
+  <section id="dashboard-slide" class="screen">
+    <div id="live-map"></div>
+
+    <div class="dash-topbar">
+      <div class="brand-logo">AQI<span>MONITOR</span></div>
+      <div class="location-pill">📍 <span id="dashLocation">Pune, India</span></div>
+    </div>
+
+    <div class="dash-bottom-hud">
+      <div class="hud-card" id="hudCard">
+        <div class="hud-header">
+          <div>
+            <span class="hud-label">REAL-TIME AIR QUALITY</span>
+            <div class="aqi-main-row">
+              <div class="aqi-score" id="aqiVal">--</div>
+              <div class="aqi-status-badge" id="aqiStatus">Connecting...</div>
+            </div>
+          </div>
+
+          <div style="text-align: right;">
+            <div class="temp-val" id="tempVal">--°C</div>
+            <div class="weather-cond" id="weatherCondition">Fetching live sensors...</div>
+          </div>
+        </div>
+
+        <div class="pollutants-row">
+          <div class="pollutant-chip">
+            <div class="label">PM2.5</div>
+            <div class="value" id="pm25Val">-- µg/m³</div>
+          </div>
+          <div class="pollutant-chip">
+            <div class="label">PM10</div>
+            <div class="value" id="pm10Val">-- µg/m³</div>
+          </div>
+          <div class="pollutant-chip">
+            <div class="label">CO</div>
+            <div class="value" id="coVal">-- µg/m³</div>
+          </div>
+          <div class="pollutant-chip">
+            <div class="label">Wind Speed</div>
+            <div class="value" id="windVal">-- km/h</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dorami Companion (Click to open Historical Chart slide) -->
+      <div class="dorami-companion" onclick="openHistoricalChartSlide()" title="Click Dorami to see 24h Trend">
+        <div class="dorami-speech-bubble" id="doramiAdvice">
+          Checking your city's air quality... 🌸
+        </div>
+        <img 
+          src="dorami.png" 
+          alt="Dorami" 
+          class="dorami-img"
+          onerror="this.onerror=null; this.src='dorami.jpg';"
+        >
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SLIDE 4 & 5: HISTORICAL AQI & MOST POLLUTED CITIES ==================== -->
+  <section id="chart-slide" class="screen">
+    <div class="chart-slide-nav">
+      <button type="button" class="back-to-map-btn" onclick="closeHistoricalChartSlide()">
+        ← Back to Live Map
+      </button>
+    </div>
+
+    <!-- Historical Chart and Shizuka-Nobita Panel -->
+    <div class="chart-content-wrapper">
+      <div class="chart-container-box">
+        <div class="chart-top-header">
+          <div>
+            <div class="chart-title-sub">AQI Graph</div>
+            <div class="chart-title-main">Historical Air Quality Data</div>
+            <div class="chart-city-name" id="graphCityName">Pune</div>
+          </div>
+
+          <div class="chart-controls">
+            <button class="btn-toggle-type" id="lineChartBtn" onclick="toggleChartType('line')" title="Line View">📈</button>
+            <button class="btn-toggle-type active" id="barChartBtn" onclick="toggleChartType('bar')" title="Bar View">📊</button>
+            <div class="pill-select">24 Hours ▾</div>
+            <div class="pill-select">AQI (US) ▾</div>
+          </div>
+        </div>
+
+        <div class="stat-badge-row">
+          <div class="stat-badge-card">
+            <div class="badge-number min-badge" id="minAqiVal">--</div>
+            <div class="badge-meta">
+              <span class="label" style="color: #4ade80;">↓ Min. AQI (US)</span>
+              <span class="time" id="minAqiTime">🕒 4:31pm</span>
+            </div>
+          </div>
+
+          <div class="stat-badge-card">
+            <div class="badge-number max-badge" id="maxAqiVal">--</div>
+            <div class="badge-meta">
+              <span class="label" style="color: #f43f5e;">↑ Max. AQI (US)</span>
+              <span class="time" id="maxAqiTime">🕒 7:01am</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="canvas-wrapper">
+          <canvas id="aqiHistoryChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Shizuka & Nobita Panel -->
+      <div class="shizuka-nobita-panel">
+        <div class="shizuka-dialogue-bubble" id="shizukaBubble">
+          Nobita, checking air quality... 🌸
+        </div>
+        <img 
+          src="sizuka_nobita.png" 
+          alt="Shizuka and Nobita under umbrella" 
+          class="shizuka-nobita-img"
+          onerror="this.onerror=null; this.src='sizuka_nobita.jpg';"
+        >
+      </div>
+    </div>
+
+    <!-- India's Most Polluted Cities 2026 Table (Scroll down) -->
+    <div class="ranking-slide-wrapper" id="polluted-cities-section">
+      <div class="ranking-header">
+        <div class="live-pill">
+          <span class="pulse-dot"></span> Live AQI Ranking
+        </div>
+        <h2 class="ranking-title">India's Most Polluted Cities 2026</h2>
+        <p class="ranking-subtitle">Real-time air quality index ranking of most polluted cities across India</p>
+
+        <div class="quick-nav-pills">
+          <div class="quick-nav-btn active-pill">
+            India's Most Polluted<br><strong>City Rankings (2026) ↗</strong>
+          </div>
+          <div class="quick-nav-btn">
+            India's Most Polluted<br><strong>State Rankings (2026) ↗</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="ranking-table-card">
+        <div class="table-scroll-container">
+          <table class="ranking-table">
+            <thead>
+              <tr>
+                <th style="width: 8%;">Rank</th>
+                <th style="width: 32%;">Most Polluted Cities</th>
+                <th style="width: 13%;">AQI</th>
+                <th style="width: 17%;">AQI Status</th>
+                <th style="width: 22%;">Standard Value ⓘ</th>
+                <th style="width: 8%; text-align: center;">Follow</th>
+              </tr>
+            </thead>
+            <tbody id="pollutedCitiesBody">
+              <tr>
+                <td colspan="6" class="loading-cell">
+                  <span class="table-spinner"></span> Fetching live sensor data for Indian cities...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-cta-banner">
+          <span class="cta-pill">Get an AQI Monitor to Join the Community ↗</span>
+        </div>
+
+        <div class="table-footer-note">
+          <div class="footer-left-tags">
+            <span class="f-tag active-tag">📍 Map</span>
+            <span class="f-tag">📊 Climate Change</span>
+            <span class="f-tag">📡 Near Me?</span>
+          </div>
+          <div class="footer-right-info">
+            <span class="footer-cat">AQI City Rankings</span>
+            <span class="footer-sep">•</span>
+            <span id="rankingLastUpdated">Last Updated: Loading live time...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Leaflet Map JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- External Script -->
+  <script src="script.js"></script>
+</body>
+</html>
